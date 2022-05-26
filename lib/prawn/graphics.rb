@@ -655,8 +655,10 @@ module Prawn
     end
 
     def map_to_absolute(*point)
-      x, y = point.flatten
-      [@bounding_box.absolute_left + x, @bounding_box.absolute_bottom + y]
+      flat_point = point.flatten
+      flat_point[0] += @bounding_box.absolute_left
+      flat_point[1] += @bounding_box.absolute_bottom
+      flat_point
     end
 
     def map_to_absolute!(point)

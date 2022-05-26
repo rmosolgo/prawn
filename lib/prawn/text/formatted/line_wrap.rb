@@ -148,24 +148,27 @@ module Prawn
           Regexp.new(pattern)
         end
 
+        LINE_WRAP_REGEXPS = {}
         # The pattern used to determine whether any word breaks exist on a
         # current line, which in turn determines whether character level
         # word breaking is needed
         #
         def word_division_scan_pattern(encoding = ::Encoding::UTF_8)
-          common_whitespaces =
-            ["\t", "\n", "\v", "\r", ' '].map do |c|
-              c.encode(encoding)
-            end
+          LINE_WRAP_REGEXPS[encoding] ||= begin
+            common_whitespaces =
+              ["\t", "\n", "\v", "\r", ' '].map do |c|
+                c.encode(encoding)
+              end
 
-          Regexp.union(
-            common_whitespaces +
-            [
-              zero_width_space(encoding),
-              soft_hyphen(encoding),
-              hyphen(encoding)
-            ].compact
-          )
+            Regexp.union(
+              common_whitespaces +
+              [
+                zero_width_space(encoding),
+                soft_hyphen(encoding),
+                hyphen(encoding)
+              ].compact
+            )
+          end
         end
 
         def soft_hyphen(encoding = ::Encoding::UTF_8)

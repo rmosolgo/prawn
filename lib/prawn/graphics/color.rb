@@ -70,18 +70,6 @@ module Prawn
         rgb.map { |e| format '%<value>02x', value: e }.join
       end
 
-      # Converts hex string into RGB value array:
-      #
-      #  >> Prawn::Graphics::Color.hex2rgb("ff7808")
-      #  => [255, 120, 8]
-      #
-      def hex2rgb(hex)
-        r = hex[0..1]
-        g = hex[2..3]
-        b = hex[4..5]
-        [r, g, b].map { |e| e.to_i(16) }
-      end
-
       private
 
       def process_color(*color)
@@ -118,8 +106,10 @@ module Prawn
       def normalize_color(color)
         case color_type(color)
         when :RGB
-          r, g, b = hex2rgb(color)
-          [r / 255.0, g / 255.0, b / 255.0]
+          r = color[0, 2]
+          g = color[2, 2]
+          b = color[4, 2]
+          [r.to_i(16) / 255.0, g.to_i(16) / 255.0, b.to_i(16) / 255.0]
         when :CMYK
           c, m, y, k = *color
           [c / 100.0, m / 100.0, y / 100.0, k / 100.0]
@@ -167,7 +157,7 @@ module Prawn
         renderer.add_content "/#{color_space} #{operator}"
       end
 
-      def set_color(type, color, options = {})
+      def set_color(type, color, options = nil)
         operator =
           case type
           when :fill
@@ -178,7 +168,7 @@ module Prawn
             raise ArgumentError, "unknown type '#{type}'"
           end
 
-        if options[:pattern]
+        if options && options[:pattern]
           set_color_space type, :Pattern
           renderer.add_content "/#{color} #{operator}"
         else
